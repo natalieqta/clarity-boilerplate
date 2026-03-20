@@ -1,65 +1,116 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Shell } from "./components/clarity/Shell";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <Shell>
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-12 px-4 py-10 sm:px-6 lg:py-16">
+        {/* Hero */}
+        <section className="max-w-3xl space-y-4">
+          <p className="text-sm font-semibold uppercase tracking-wider text-clarity-purple">
+            Communication practice
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          <h1 className="text-4xl font-bold leading-tight tracking-tight text-clarity-ink sm:text-5xl">
+            Sound confident in every demo — starting with clarity.
+          </h1>
+          <p className="max-w-2xl text-lg leading-relaxed text-clarity-slate">
+            Practice how you say it and what you say — with instant AI feedback.
+          </p>
+        </section>
+
+        {/* Two module cards */}
+        <section className="grid gap-6 sm:grid-cols-2">
+          {/* HOW card */}
+          <Link
+            href="/test"
+            className="group flex flex-col justify-between rounded-2xl border border-clarity-periwinkle bg-white/80 p-6 shadow-sm transition hover:border-clarity-purple/40 hover:shadow-md sm:p-8"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <div>
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-clarity-purple/10 text-xl">
+                🎙
+              </span>
+              <h2 className="mt-4 text-xl font-bold text-clarity-ink">
+                HOW you say it
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-clarity-slate">
+                Perfect your pronunciation. Read sentences, get word-level
+                scores, and drill specific sounds. For non-native speakers
+                refining English and native speakers who need to enunciate.
+              </p>
+            </div>
+            <div className="mt-6">
+              <span className="inline-flex items-center gap-1 text-sm font-semibold text-clarity-purple group-hover:underline">
+                Start pronunciation test &rarr;
+              </span>
+            </div>
+          </Link>
+
+          {/* WHAT card */}
+          <Link
+            href="/what"
+            className="group flex flex-col justify-between rounded-2xl border border-clarity-periwinkle bg-white/80 p-6 shadow-sm transition hover:border-clarity-purple/40 hover:shadow-md sm:p-8"
           >
-            Documentation
-          </a>
-        </div>
+            <div>
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-clarity-purple/10 text-xl">
+                💡
+              </span>
+              <h2 className="mt-4 text-xl font-bold text-clarity-ink">
+                WHAT you say
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-clarity-slate">
+                Practice thinking on your feet. Respond to work scenarios and
+                get scored on structure, speed to point, conciseness, and filler
+                words.
+              </p>
+            </div>
+            <div className="mt-6">
+              <span className="inline-flex items-center gap-1 text-sm font-semibold text-clarity-purple group-hover:underline">
+                Try a scenario &rarr;
+              </span>
+            </div>
+          </Link>
+        </section>
+
+        {/* How it works */}
+        <section className="mx-auto w-full max-w-2xl">
+          <div className="rounded-2xl border border-clarity-periwinkle bg-gradient-to-br from-clarity-mist to-clarity-periwinkle/60 p-6 shadow-sm sm:p-8">
+            <h2 className="text-sm font-semibold text-clarity-navy">
+              How it works
+            </h2>
+            <ol className="mt-4 space-y-4 text-sm leading-relaxed text-clarity-navy">
+              <li className="flex gap-3">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-clarity-purple text-xs font-bold text-white">
+                  1
+                </span>
+                <span>
+                  <strong className="text-clarity-ink">Pick a module</strong> —
+                  pronunciation (HOW) or message clarity (WHAT).
+                </span>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-clarity-purple text-xs font-bold text-white">
+                  2
+                </span>
+                <span>
+                  <strong className="text-clarity-ink">Record yourself</strong>{" "}
+                  — speak naturally, just like you would in a meeting.
+                </span>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-clarity-purple text-xs font-bold text-white">
+                  3
+                </span>
+                <span>
+                  <strong className="text-clarity-ink">
+                    Get instant AI feedback
+                  </strong>{" "}
+                  — specific coaching, not generic tips.
+                </span>
+              </li>
+            </ol>
+          </div>
+        </section>
       </main>
-    </div>
+    </Shell>
   );
 }

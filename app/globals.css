@@ -1,26 +1,37 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --clarity-bg: #f7f6fe;
+  --clarity-ink: #020023;
+  --clarity-purple: #7357ff;
+  --clarity-lime: #ebff00;
+  --clarity-navy: #282859;
+  --clarity-violet: #ad39ff;
+  --clarity-magenta: #e82de8;
+  --clarity-mist: #eceaf8;
+  --clarity-periwinkle: #dcdaed;
+  --clarity-muted: #a1a1c6;
+  --clarity-slate: #57576b;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-clarity-bg: var(--clarity-bg);
+  --color-clarity-ink: var(--clarity-ink);
+  --color-clarity-purple: var(--clarity-purple);
+  --color-clarity-lime: var(--clarity-lime);
+  --color-clarity-navy: var(--clarity-navy);
+  --color-clarity-violet: var(--clarity-violet);
+  --color-clarity-magenta: var(--clarity-magenta);
+  --color-clarity-mist: var(--clarity-mist);
+  --color-clarity-periwinkle: var(--clarity-periwinkle);
+  --color-clarity-muted: var(--clarity-muted);
+  --color-clarity-slate: var(--clarity-slate);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--clarity-bg);
+  color: var(--clarity-ink);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
