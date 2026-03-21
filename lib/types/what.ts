@@ -6,21 +6,31 @@ export interface WhatPrompt {
   text: string;
 }
 
-export interface FrameworkBreakdown {
-  point: boolean;
-  why_it_matters: boolean;
-  support_reason: boolean;
-  next_step: boolean;
+export interface WorkStructureBreakdown {
+  clear_position: boolean;
+  context_stakes: boolean;
+  evidence: boolean;
+  action_recommendation: boolean;
 }
+
+export interface SpotStructureBreakdown {
+  clear_position: boolean;
+  reasoning: boolean;
+  concrete_example: boolean;
+  landing: boolean;
+}
+
+export type StructureBreakdown = WorkStructureBreakdown | SpotStructureBreakdown;
 
 export interface WhatAnalysis {
   overall_score: number;
-  framework_score: number;
+  structure_score: number;
   speed_score: number;
   conciseness_score: number;
   filler_score: number;
   filler_words_found: string[];
-  framework_breakdown: FrameworkBreakdown;
+  structure_breakdown: StructureBreakdown;
+  structure_mode: WhatMode;
   first_clear_point_sentence: string | null;
   top_coaching_note: string;
   rewrite_suggestion: string;

@@ -50,7 +50,7 @@ export default function WhatRecordPage() {
         const res = await fetch("/api/analyze-message", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ transcript, prompt: prompt.text }),
+          body: JSON.stringify({ transcript, prompt: prompt.text, mode: prompt.mode }),
         });
 
         if (!res.ok) {

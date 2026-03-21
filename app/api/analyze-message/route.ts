@@ -1,12 +1,41 @@
-const SYSTEM_PROMPT = `You are a communication coach evaluating a spoken response. The user was given a prompt and responded verbally. Their speech has been transcribed.
+import type { WhatMode } from "@/lib/types/what";
+
+function buildSystemPrompt(mode: WhatMode): string {
+  const structureName = mode === "work" ? "STRUCTURE (Work scenario)" : "STRUCTURE (On-the-spot)";
+
+  const structureCriteria =
+    mode === "work"
+      ? `1. ${structureName} (0-25): Did they hit these four elements?
+   - Clear position (stated their main point up front)
+   - Context & stakes (explained why it matters or what's at risk)
+   - Evidence (gave a supporting reason, example, or data)
+   - Action / recommendation (ended with a clear next step or ask)`
+      : `1. ${structureName} (0-25): Did they hit these four elements?
+   - Clear position (stated their stance or answer up front)
+   - Reasoning (explained the "why" behind their position)
+   - Concrete example (illustrated with a specific story, case, or detail)
+   - Landing (wrapped up cleanly — didn't trail off or ramble at the end)`;
+
+  const breakdownSchema =
+    mode === "work"
+      ? `"structure_breakdown": {
+    "clear_position": true,
+    "context_stakes": false,
+    "evidence": true,
+    "action_recommendation": false
+  }`
+      : `"structure_breakdown": {
+    "clear_position": true,
+    "reasoning": false,
+    "concrete_example": true,
+    "landing": false
+  }`;
+
+  return `You are a communication coach evaluating a spoken response. The user was given a prompt and responded verbally. Their speech has been transcribed.
 
 Analyze the transcript and score it on four dimensions (0-25 each, total out of 100):
 
-1. FRAMEWORK (0-25): Did they hit all four points in order?
-   - The point (main message stated clearly)
-   - Why it matters (so what / stakes)
-   - One support reason (evidence or example)
-   - Proposed next step (clear call to action or recommendation)
+${structureCriteria}
 
 2. SPEED TO POINT (0-25): How quickly did they state the main point?
    - 25: First 1-2 sentences
@@ -25,21 +54,18 @@ Analyze the transcript and score it on four dimensions (0-25 each, total out of 
 Return ONLY valid JSON in this exact format (no markdown, no explanation):
 {
   "overall_score": <number 0-100>,
-  "framework_score": <number 0-25>,
+  "structure_score": <number 0-25>,
   "speed_score": <number 0-25>,
   "conciseness_score": <number 0-25>,
   "filler_score": <number 0-25>,
   "filler_words_found": ["um", "like"],
-  "framework_breakdown": {
-    "point": true,
-    "why_it_matters": false,
-    "support_reason": true,
-    "next_step": false
-  },
+  ${breakdownSchema},
+  "structure_mode": "${mode}",
   "first_clear_point_sentence": "quote the sentence where they first stated their main point, or null if never stated",
   "top_coaching_note": "one specific, direct coaching tip in 1-2 sentences",
   "rewrite_suggestion": "a tighter version of their opening 2 sentences that gets to the point faster"
 }`;
+}
 
 export async function POST(request: Request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -47,19 +73,21 @@ export async function POST(request: Request) {
     return Response.json({ error: "Anthropic API not configured" }, { status: 500 });
   }
 
-  let body: { transcript: string; prompt: string };
+  let body: { transcript: string; prompt: string; mode?: WhatMode };
   try {
     body = await request.json();
   } catch {
     return Response.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { transcript, prompt } = body;
+  const { transcript, prompt, mode = "work" } = body;
   if (!transcript || !prompt) {
     return Response.json({ error: "Missing transcript or prompt" }, { status: 400 });
   }
 
   try {
+    const systemPrompt = buildSystemPrompt(mode);
+
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -70,7 +98,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
         max_tokens: 1024,
-        system: SYSTEM_PROMPT,
+        system: systemPrompt,
         messages: [
           {
             role: "user",
@@ -100,7 +128,7 @@ export async function POST(request: Request) {
     // Validate required fields
     if (
       typeof analysis.overall_score !== "number" ||
-      typeof analysis.framework_score !== "number" ||
+      typeof analysis.structure_score !== "number" ||
       typeof analysis.speed_score !== "number" ||
       typeof analysis.conciseness_score !== "number" ||
       typeof analysis.filler_score !== "number"

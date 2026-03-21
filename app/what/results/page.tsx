@@ -7,7 +7,7 @@ import { Shell } from "../../components/clarity/Shell";
 import { PrimaryButton, GhostButton } from "../../components/clarity/Buttons";
 import { ScoreCircle } from "../../components/clarity/ScoreCircle";
 import { SubScoreGrid } from "../../components/clarity/SubScoreGrid";
-import { FrameworkChecklist } from "../../components/clarity/FrameworkChecklist";
+import { StructureChecklist } from "../../components/clarity/FrameworkChecklist";
 import { FillerHighlight } from "../../components/clarity/FillerHighlight";
 import type { WhatSessionData } from "@/lib/types/what";
 
@@ -49,7 +49,7 @@ export default function WhatResultsPage() {
   const fillerCount = analysis.filler_words_found.length;
 
   const subScores = [
-    { label: "Framework", score: analysis.framework_score, maxScore: 25 },
+    { label: "Structure", score: analysis.structure_score, maxScore: 25 },
     { label: "Speed to point", score: analysis.speed_score, maxScore: 25 },
     { label: "Conciseness", score: analysis.conciseness_score, maxScore: 25 },
     { label: "Filler words", score: analysis.filler_score, maxScore: 25 },
@@ -89,13 +89,13 @@ export default function WhatResultsPage() {
             {/* Framework checklist */}
             <section className="rounded-2xl border border-clarity-periwinkle bg-white/80 p-5 shadow-sm">
               <h2 className="text-sm font-semibold text-clarity-navy">
-                Framework check
+                Structure check
               </h2>
               <p className="mt-1 text-xs text-clarity-slate">
                 Did your response hit all four parts of a clear message?
               </p>
               <div className="mt-4">
-                <FrameworkChecklist breakdown={analysis.framework_breakdown} />
+                <StructureChecklist breakdown={analysis.structure_breakdown} mode={prompt.mode} />
               </div>
             </section>
 

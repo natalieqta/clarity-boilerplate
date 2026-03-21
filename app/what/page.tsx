@@ -55,7 +55,7 @@ export default function WhatPage() {
           </h1>
           <p className="mt-2 text-sm text-clarity-slate">
             Practice structuring your thoughts clearly. Speak your response and
-            get scored on framework, speed to point, conciseness, and filler words.
+            get scored on structure, speed to point, conciseness, and filler words.
           </p>
         </div>
 
@@ -121,12 +121,21 @@ export default function WhatPage() {
             {/* Tips */}
             <div className="rounded-xl bg-clarity-mist/60 px-4 py-3">
               <p className="text-xs font-semibold text-clarity-navy">Tips for a strong response</p>
-              <ul className="mt-2 space-y-1 text-xs text-clarity-slate">
-                <li>1. State your main point in the first 1-2 sentences</li>
-                <li>2. Explain why it matters</li>
-                <li>3. Give one supporting reason or example</li>
-                <li>4. End with a clear next step or recommendation</li>
-              </ul>
+              {selectedMode === "work" ? (
+                <ul className="mt-2 space-y-1 text-xs text-clarity-slate">
+                  <li>1. State your position in the first 1-2 sentences</li>
+                  <li>2. Give context and stakes — why does this matter?</li>
+                  <li>3. Provide evidence or a supporting example</li>
+                  <li>4. End with an action or recommendation</li>
+                </ul>
+              ) : (
+                <ul className="mt-2 space-y-1 text-xs text-clarity-slate">
+                  <li>1. State your position or answer up front</li>
+                  <li>2. Explain your reasoning — the &ldquo;why&rdquo;</li>
+                  <li>3. Give a concrete example or story</li>
+                  <li>4. Land it — wrap up cleanly, don&apos;t trail off</li>
+                </ul>
+              )}
             </div>
           </div>
         )}

@@ -1,21 +1,31 @@
-import type { FrameworkBreakdown } from "@/lib/types/what";
+import type { StructureBreakdown, WhatMode } from "@/lib/types/what";
 
-interface FrameworkChecklistProps {
-  breakdown: FrameworkBreakdown;
+interface StructureChecklistProps {
+  breakdown: StructureBreakdown;
+  mode: WhatMode;
 }
 
-const ITEMS: { key: keyof FrameworkBreakdown; label: string }[] = [
-  { key: "point", label: "Made the point" },
-  { key: "why_it_matters", label: "Explained why it matters" },
-  { key: "support_reason", label: "Gave a support reason" },
-  { key: "next_step", label: "Stated next step" },
+const WORK_ITEMS: { key: string; label: string }[] = [
+  { key: "clear_position", label: "Stated a clear position" },
+  { key: "context_stakes", label: "Explained context & stakes" },
+  { key: "evidence", label: "Provided evidence or example" },
+  { key: "action_recommendation", label: "Gave an action or recommendation" },
 ];
 
-export function FrameworkChecklist({ breakdown }: FrameworkChecklistProps) {
+const SPOT_ITEMS: { key: string; label: string }[] = [
+  { key: "clear_position", label: "Stated a clear position" },
+  { key: "reasoning", label: "Explained reasoning" },
+  { key: "concrete_example", label: "Gave a concrete example" },
+  { key: "landing", label: "Landed it cleanly" },
+];
+
+export function StructureChecklist({ breakdown, mode }: StructureChecklistProps) {
+  const items = mode === "work" ? WORK_ITEMS : SPOT_ITEMS;
+
   return (
     <ul className="space-y-2">
-      {ITEMS.map(({ key, label }) => {
-        const passed = breakdown[key];
+      {items.map(({ key, label }) => {
+        const passed = (breakdown as unknown as Record<string, boolean>)[key] ?? false;
         return (
           <li key={key} className="flex items-center gap-2.5">
             <span
@@ -25,7 +35,7 @@ export function FrameworkChecklist({ breakdown }: FrameworkChecklistProps) {
                   : "bg-red-100 text-red-600"
               }`}
             >
-              {passed ? "✓" : "✗"}
+              {passed ? "\u2713" : "\u2717"}
             </span>
             <span
               className={`text-sm ${
