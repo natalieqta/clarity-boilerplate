@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Shell } from "../components/clarity/Shell";
 import { LinkButton } from "../components/clarity/Buttons";
+import { useTextToSpeech } from "@/lib/speech/useTextToSpeech";
 import type { AssessmentResult, WordScore } from "@/lib/speech/types";
 
 function computeOverallScore(results: AssessmentResult[]): number {
@@ -54,6 +55,7 @@ export default function ResultsPage() {
   const [testResults, setTestResults] = useState<AssessmentResult[] | null>(
     null
   );
+  const { speak, playing } = useTextToSpeech();
 
   useEffect(() => {
     const stored = sessionStorage.getItem("clarity-test-results");
@@ -103,6 +105,7 @@ export default function ResultsPage() {
             detail: weakWords.map((w) => w.word).join(", "),
             href: `/practice?word=${encodeURIComponent(weakWords[0].word)}`,
             accent: "bg-clarity-lime/90 text-clarity-ink",
+            weakWordsList: weakWords,
           },
         ]
       : []),
@@ -170,7 +173,7 @@ export default function ResultsPage() {
         </header>
 
         <div className="grid items-start gap-8 lg:grid-cols-[280px_1fr] xl:grid-cols-[320px_1fr]">
-          <section className="mx-auto flex w-full max-w-sm flex-col items-center rounded-2xl border border-clarity-periwinkle bg-white/70 p-8 shadow-sm lg:mx-0 lg:sticky lg:top-24">
+          <section className="mx-auto flex w-full max-w-sm flex-col items-center glass-card p-8 lg:mx-0 lg:sticky lg:top-24">
             <div
               className="relative flex h-44 w-44 items-center justify-center rounded-full bg-clarity-mist ring-4 ring-clarity-purple/25"
               aria-label={`Score ${overall} out of 100`}
@@ -224,10 +227,7 @@ export default function ResultsPage() {
             <ul className="grid gap-4 sm:grid-cols-1 xl:grid-cols-2">
               {suggestions.map((s) => (
                 <li key={s.title}>
-                  <Link
-                    href={s.href}
-                    className="flex h-full flex-col rounded-2xl border border-clarity-periwinkle bg-gradient-to-br from-clarity-mist/90 to-clarity-bg p-5 transition hover:border-clarity-purple/50 hover:shadow-md"
-                  >
+                  <div className="flex h-full flex-col rounded-2xl border border-clarity-periwinkle bg-gradient-to-br from-clarity-mist/90 to-clarity-bg p-5 transition hover:border-clarity-purple/50 hover:shadow-md">
                     <span
                       className={`inline-flex w-fit rounded-lg px-2 py-0.5 text-xs font-semibold ${s.accent}`}
                     >
@@ -236,13 +236,49 @@ export default function ResultsPage() {
                     <span className="mt-3 text-lg font-semibold text-clarity-ink">
                       {s.title}
                     </span>
-                    <span className="mt-2 flex-1 text-sm text-clarity-slate">
-                      {s.detail}
-                    </span>
-                    <span className="mt-4 text-sm font-semibold text-clarity-purple">
+                    {"weakWordsList" in s && s.weakWordsList ? (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {(s.weakWordsList as WordScore[]).map((w, i) => (
+                          <span
+                            key={`${w.word}-${i}`}
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-2.5 py-1 text-sm font-medium text-red-800 ring-1 ring-red-200"
+                          >
+                            {w.word}
+                            <button
+                              type="button"
+                              onClick={() => speak(w.word, "slow")}
+                              disabled={playing}
+                              className="rounded-full p-0.5 text-red-500 transition hover:text-red-700 disabled:opacity-50"
+                              title={`Hear "${w.word}"`}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5">
+                                <path d="M7.557 2.066A.75.75 0 0 1 8 2.75v10.5a.75.75 0 0 1-1.248.56L3.59 11H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.59l3.162-2.81a.75.75 0 0 1 .805-.124ZM12.95 3.05a.75.75 0 1 0-1.06 1.06 5.5 5.5 0 0 1 0 7.78.75.75 0 1 0 1.06 1.06 7 7 0 0 0 0-9.9ZM10.828 5.172a.75.75 0 1 0-1.06 1.06 2.5 2.5 0 0 1 0 3.536.75.75 0 1 0 1.06 1.06 4 4 0 0 0 0-5.656Z" />
+                              </svg>
+                            </button>
+                            <Link
+                              href={`/practice?word=${encodeURIComponent(w.word)}`}
+                              className="rounded-full p-0.5 text-red-500 transition hover:text-red-700"
+                              title={`Practice "${w.word}"`}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5">
+                                <path fillRule="evenodd" d="M2 8a.75.75 0 0 1 .75-.75h8.69L8.22 4.03a.75.75 0 0 1 1.06-1.06l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06-1.06l3.22-3.22H2.75A.75.75 0 0 1 2 8Z" clipRule="evenodd" />
+                              </svg>
+                            </Link>
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="mt-2 flex-1 text-sm text-clarity-slate">
+                        {s.detail}
+                      </span>
+                    )}
+                    <Link
+                      href={s.href}
+                      className="mt-4 text-sm font-semibold text-clarity-purple hover:underline"
+                    >
                       Open drill &rarr;
-                    </span>
-                  </Link>
+                    </Link>
+                  </div>
                 </li>
               ))}
             </ul>

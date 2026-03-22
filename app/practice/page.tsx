@@ -324,7 +324,7 @@ function PracticeContent() {
                     {result.recognizedText || "(no speech detected)"}
                   </p>
                   <div className="mt-3">
-                    <WordFeedback words={result.words} />
+                    <WordFeedback words={result.words} onPlayWord={(w) => speak(w, "slow")} />
                   </div>
                 </>
               ) : (

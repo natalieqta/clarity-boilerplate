@@ -1,52 +1,24 @@
-import type { WhatMode } from "@/lib/types/what";
-
-function buildSystemPrompt(mode: WhatMode): string {
-  const structureName = mode === "work" ? "STRUCTURE (Work scenario)" : "STRUCTURE (On-the-spot)";
-
-  const structureCriteria =
-    mode === "work"
-      ? `1. ${structureName} (0-25): Did they hit these four elements?
-   - Clear position (stated their main point up front)
-   - Context & stakes (explained why it matters or what's at risk)
-   - Evidence (gave a supporting reason, example, or data)
-   - Action / recommendation (ended with a clear next step or ask)`
-      : `1. ${structureName} (0-25): Did they hit these four elements?
-   - Clear position (stated their stance or answer up front)
-   - Reasoning (explained the "why" behind their position)
-   - Concrete example (illustrated with a specific story, case, or detail)
-   - Landing (wrapped up cleanly — didn't trail off or ramble at the end)`;
-
-  const breakdownSchema =
-    mode === "work"
-      ? `"structure_breakdown": {
-    "clear_position": true,
-    "context_stakes": false,
-    "evidence": true,
-    "action_recommendation": false
-  }`
-      : `"structure_breakdown": {
-    "clear_position": true,
-    "reasoning": false,
-    "concrete_example": true,
-    "landing": false
-  }`;
-
+function buildSystemPrompt(): string {
   return `You are a communication coach evaluating a spoken response. The user was given a prompt and responded verbally. Their speech has been transcribed.
 
 Analyze the transcript and score it on four dimensions (0-25 each, total out of 100):
 
-${structureCriteria}
+1. STRUCTURE (0-25): Did they build a clear, complete response? Check for these four elements:
+   - Clear point: Opened with a direct answer or position (not throat-clearing or restating the question)
+   - Reasoning: Explained WHY — gave the logic, motivation, or context behind their point
+   - Proof: Backed it up with something specific — an example, a story, a data point, a comparison
+   - Landing: Ended with purpose — a next step, a recommendation, a question, or a clean wrap (didn't just trail off)
 
-2. SPEED TO POINT (0-25): How quickly did they state the main point?
-   - 25: First 1-2 sentences
-   - 15: Within first third of response
-   - 5: Buried or never stated
+2. SPEED TO POINT (0-25): How quickly did they get to their actual point?
+   - 25: First sentence or two — immediately clear what they think
+   - 15: Took a while but got there within the first third
+   - 5: Buried, vague, or never clearly stated
 
-3. CONCISENESS (0-25): Was the response tight or did it ramble?
-   - Penalize repetition, over-explanation, circling back
-   - Reward clear, direct language
+3. CONCISENESS (0-25): Was the response tight or padded?
+   - Penalize: repetition, restating what was already said, over-explaining, circular reasoning, hedging
+   - Reward: direct language, saying it once and moving on, every sentence earning its place
 
-4. FILLER WORDS (0-25): Count and penalize: um, uh, like, basically, so (as sentence starters), you know, kind of, sort of, right?
+4. FILLER WORDS (0-25): Count these fillers: um, uh, like (non-grammatical), basically, so (as sentence starters), you know, kind of, sort of, right?, I mean, honestly, actually (when meaningless)
    - 25: 0-2 fillers
    - 15: 3-6 fillers
    - 5: 7+ fillers
@@ -59,10 +31,14 @@ Return ONLY valid JSON in this exact format (no markdown, no explanation):
   "conciseness_score": <number 0-25>,
   "filler_score": <number 0-25>,
   "filler_words_found": ["um", "like"],
-  ${breakdownSchema},
-  "structure_mode": "${mode}",
+  "structure_breakdown": {
+    "clear_point": true,
+    "reasoning": false,
+    "proof": true,
+    "landing": false
+  },
   "first_clear_point_sentence": "quote the sentence where they first stated their main point, or null if never stated",
-  "top_coaching_note": "one specific, direct coaching tip in 1-2 sentences",
+  "top_coaching_note": "one specific, direct coaching tip in 1-2 sentences — tell them exactly what to change next time",
   "rewrite_suggestion": "a tighter version of their opening 2 sentences that gets to the point faster"
 }`;
 }
@@ -73,20 +49,20 @@ export async function POST(request: Request) {
     return Response.json({ error: "Anthropic API not configured" }, { status: 500 });
   }
 
-  let body: { transcript: string; prompt: string; mode?: WhatMode };
+  let body: { transcript: string; prompt: string };
   try {
     body = await request.json();
   } catch {
     return Response.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { transcript, prompt, mode = "work" } = body;
+  const { transcript, prompt } = body;
   if (!transcript || !prompt) {
     return Response.json({ error: "Missing transcript or prompt" }, { status: 400 });
   }
 
   try {
-    const systemPrompt = buildSystemPrompt(mode);
+    const systemPrompt = buildSystemPrompt();
 
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",

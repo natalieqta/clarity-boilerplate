@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { Shell } from "./components/clarity/Shell";
+import { LemonSliceAvatar } from "./components/clarity/LemonSliceAvatar";
 
 export default function Home() {
   return (
     <Shell>
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-12 px-4 py-10 sm:px-6 lg:py-16">
         {/* Hero */}
-        <section className="max-w-3xl space-y-4">
+        <section className="max-w-3xl space-y-4 animate-fade-in-up">
           <p className="text-sm font-semibold uppercase tracking-wider text-clarity-purple">
             Communication practice
           </p>
@@ -19,14 +20,14 @@ export default function Home() {
         </section>
 
         {/* Two module cards */}
-        <section className="grid gap-6 sm:grid-cols-2">
+        <section className="grid gap-6 sm:grid-cols-2 animate-fade-in-up-delay-1">
           {/* HOW card */}
           <Link
             href="/test"
-            className="group flex flex-col justify-between rounded-2xl border border-clarity-periwinkle bg-white/80 p-6 shadow-sm transition hover:border-clarity-purple/40 hover:shadow-md sm:p-8"
+            className="glass-card group flex flex-col justify-between p-6 transition hover:border-clarity-purple/40 hover:shadow-md sm:p-8"
           >
             <div>
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-clarity-purple/10 text-xl">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-clarity-lime/30 text-xl">
                 🎙
               </span>
               <h2 className="mt-4 text-xl font-bold text-clarity-ink">
@@ -48,10 +49,10 @@ export default function Home() {
           {/* WHAT card */}
           <Link
             href="/what"
-            className="group flex flex-col justify-between rounded-2xl border border-clarity-periwinkle bg-white/80 p-6 shadow-sm transition hover:border-clarity-purple/40 hover:shadow-md sm:p-8"
+            className="glass-card group flex flex-col justify-between p-6 transition hover:border-clarity-purple/40 hover:shadow-md sm:p-8"
           >
             <div>
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-clarity-purple/10 text-xl">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-clarity-violet/10 text-xl">
                 💡
               </span>
               <h2 className="mt-4 text-xl font-bold text-clarity-ink">
@@ -72,8 +73,8 @@ export default function Home() {
         </section>
 
         {/* How it works */}
-        <section className="mx-auto w-full max-w-2xl">
-          <div className="rounded-2xl border border-clarity-periwinkle bg-gradient-to-br from-clarity-mist to-clarity-periwinkle/60 p-6 shadow-sm sm:p-8">
+        <section className="mx-auto w-full max-w-2xl animate-fade-in-up-delay-2">
+          <div className="glass-card p-6 sm:p-8">
             <h2 className="text-sm font-semibold text-clarity-navy">
               How it works
             </h2>
@@ -111,6 +112,9 @@ export default function Home() {
           </div>
         </section>
       </main>
+
+      {/* Lemon Slice AI Avatar */}
+      <LemonSliceAvatar />
     </Shell>
   );
 }

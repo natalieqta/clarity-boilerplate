@@ -87,7 +87,7 @@ export default function WhatResultsPage() {
           {/* Right column: details */}
           <div className="flex flex-col gap-6">
             {/* Framework checklist */}
-            <section className="rounded-2xl border border-clarity-periwinkle bg-white/80 p-5 shadow-sm">
+            <section className="glass-card p-5">
               <h2 className="text-sm font-semibold text-clarity-navy">
                 Structure check
               </h2>
@@ -95,7 +95,7 @@ export default function WhatResultsPage() {
                 Did your response hit all four parts of a clear message?
               </p>
               <div className="mt-4">
-                <StructureChecklist breakdown={analysis.structure_breakdown} mode={prompt.mode} />
+                <StructureChecklist breakdown={analysis.structure_breakdown} />
               </div>
             </section>
 
@@ -111,7 +111,7 @@ export default function WhatResultsPage() {
 
             {/* Rewrite suggestion */}
             {analysis.rewrite_suggestion && (
-              <section className="rounded-2xl border border-clarity-periwinkle bg-white/80 p-5 shadow-sm">
+              <section className="glass-card p-5">
                 <h2 className="text-sm font-semibold text-clarity-navy">
                   Stronger opener
                 </h2>
@@ -133,7 +133,7 @@ export default function WhatResultsPage() {
             )}
 
             {/* Transcript with filler highlights */}
-            <section className="rounded-2xl border border-clarity-periwinkle bg-white/80 p-5 shadow-sm">
+            <section className="glass-card p-5">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-clarity-navy">
                   Your transcript

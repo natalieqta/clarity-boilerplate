@@ -1,31 +1,21 @@
-import type { StructureBreakdown, WhatMode } from "@/lib/types/what";
+import type { StructureBreakdown } from "@/lib/types/what";
 
 interface StructureChecklistProps {
   breakdown: StructureBreakdown;
-  mode: WhatMode;
 }
 
-const WORK_ITEMS: { key: string; label: string }[] = [
-  { key: "clear_position", label: "Stated a clear position" },
-  { key: "context_stakes", label: "Explained context & stakes" },
-  { key: "evidence", label: "Provided evidence or example" },
-  { key: "action_recommendation", label: "Gave an action or recommendation" },
-];
-
-const SPOT_ITEMS: { key: string; label: string }[] = [
-  { key: "clear_position", label: "Stated a clear position" },
-  { key: "reasoning", label: "Explained reasoning" },
-  { key: "concrete_example", label: "Gave a concrete example" },
+const ITEMS: { key: keyof StructureBreakdown; label: string }[] = [
+  { key: "clear_point", label: "Opened with a clear point" },
+  { key: "reasoning", label: "Explained the reasoning" },
+  { key: "proof", label: "Backed it up with proof" },
   { key: "landing", label: "Landed it cleanly" },
 ];
 
-export function StructureChecklist({ breakdown, mode }: StructureChecklistProps) {
-  const items = mode === "work" ? WORK_ITEMS : SPOT_ITEMS;
-
+export function StructureChecklist({ breakdown }: StructureChecklistProps) {
   return (
     <ul className="space-y-2">
-      {items.map(({ key, label }) => {
-        const passed = (breakdown as unknown as Record<string, boolean>)[key] ?? false;
+      {ITEMS.map(({ key, label }) => {
+        const passed = breakdown[key] ?? false;
         return (
           <li key={key} className="flex items-center gap-2.5">
             <span

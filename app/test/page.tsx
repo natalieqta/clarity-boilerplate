@@ -93,27 +93,12 @@ export default function QuickTestPage() {
 
         <div className="grid flex-1 gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
           <section className="rounded-2xl border border-clarity-periwinkle bg-white/70 p-5 shadow-sm sm:p-8">
-            <p className="text-xs font-semibold uppercase tracking-wide text-clarity-muted">
-              Listen &amp; repeat
-            </p>
-            <h2 className="mt-2 text-xl font-semibold text-clarity-ink sm:text-2xl">
+            <h2 className="text-xl font-semibold text-clarity-ink sm:text-2xl">
               Say this sentence naturally:
             </h2>
             <blockquote className="mt-6 rounded-xl border border-dashed border-clarity-muted/60 bg-clarity-mist/80 px-5 py-6 text-lg font-medium leading-relaxed text-clarity-navy sm:text-xl">
               &ldquo;{sentence}&rdquo;
             </blockquote>
-
-            <button
-              type="button"
-              onClick={() => speak(sentence, "slow")}
-              disabled={playing}
-              className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-clarity-mist px-3 py-1.5 text-sm font-medium text-clarity-purple ring-1 ring-clarity-periwinkle transition hover:bg-clarity-periwinkle disabled:opacity-50"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
-                <path d="M6.3 2.84A1.5 1.5 0 0 0 4 4.11v11.78a1.5 1.5 0 0 0 2.3 1.27l9.344-5.891a1.5 1.5 0 0 0 0-2.538L6.3 2.841Z" />
-              </svg>
-              {playing ? "Playing..." : "Hear it (slow)"}
-            </button>
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <RecordButton
@@ -137,7 +122,7 @@ export default function QuickTestPage() {
                 <p className="text-sm font-semibold text-clarity-navy">
                   Word-level feedback
                 </p>
-                <WordFeedback words={result.words} />
+                <WordFeedback words={result.words} onPlayWord={(w) => speak(w, "slow")} />
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   {[
                     { label: "Accuracy", value: result.scores.accuracyScore },

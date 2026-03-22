@@ -6,21 +6,16 @@ export interface WhatPrompt {
   text: string;
 }
 
-export interface WorkStructureBreakdown {
-  clear_position: boolean;
-  context_stakes: boolean;
-  evidence: boolean;
-  action_recommendation: boolean;
-}
-
-export interface SpotStructureBreakdown {
-  clear_position: boolean;
+export interface StructureBreakdown {
+  /** Did they open with a clear point or position? */
+  clear_point: boolean;
+  /** Did they give a reason or explain why? */
   reasoning: boolean;
-  concrete_example: boolean;
+  /** Did they support it with a specific example, story, or detail? */
+  proof: boolean;
+  /** Did they land it cleanly — a next step, ask, or clean wrap? */
   landing: boolean;
 }
-
-export type StructureBreakdown = WorkStructureBreakdown | SpotStructureBreakdown;
 
 export interface WhatAnalysis {
   overall_score: number;
@@ -30,7 +25,6 @@ export interface WhatAnalysis {
   filler_score: number;
   filler_words_found: string[];
   structure_breakdown: StructureBreakdown;
-  structure_mode: WhatMode;
   first_clear_point_sentence: string | null;
   top_coaching_note: string;
   rewrite_suggestion: string;
