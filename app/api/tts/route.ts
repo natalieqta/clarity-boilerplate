@@ -4,20 +4,27 @@ export async function POST(request: Request) {
     return new Response("ElevenLabs API not configured", { status: 500 });
   }
 
-  let body: { text: string; speed?: "slow" | "normal" };
+  let body: { text: string; speed?: "slow" | "normal"; lang?: "en-US" | "vi-VN" };
   try {
     body = await request.json();
   } catch {
     return new Response("Invalid request body", { status: 400 });
   }
 
-  const { text, speed = "normal" } = body;
+  const { text, speed = "normal", lang = "en-US" } = body;
   if (!text) {
     return new Response("Missing text", { status: 400 });
   }
 
-  // Rachel voice — clear, professional female voice
-  const voiceId = "21m00Tcm4TlvDq8ikWAM";
+  // Rachel (English) or a multilingual voice for Vietnamese
+  // ElevenLabs multilingual v2 model supports Vietnamese natively
+  const voiceId = lang === "vi-VN"
+    ? "EXAVITQu4vr4xnSDxMaL" // Bella — multilingual, works well with Vietnamese
+    : "21m00Tcm4TlvDq8ikWAM"; // Rachel — English
+
+  const modelId = lang === "vi-VN"
+    ? "eleven_multilingual_v2" // required for Vietnamese
+    : "eleven_flash_v2_5";    // fast, English-only
 
   const voiceSettings =
     speed === "slow"
@@ -35,7 +42,7 @@ export async function POST(request: Request) {
         },
         body: JSON.stringify({
           text,
-          model_id: "eleven_flash_v2_5",
+          model_id: modelId,
           voice_settings: voiceSettings,
         }),
       }

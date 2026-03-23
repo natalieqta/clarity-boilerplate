@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Shell } from "../components/clarity/Shell";
 import { GhostButton, PrimaryButton } from "../components/clarity/Buttons";
 import { RecordButton } from "../components/clarity/RecordButton";
@@ -9,9 +9,11 @@ import { WordFeedback } from "../components/clarity/WordFeedback";
 import { MicPermission } from "../components/clarity/MicPermission";
 import { useAzureSpeech } from "@/lib/speech/useAzureSpeech";
 import { useTextToSpeech } from "@/lib/speech/useTextToSpeech";
+import type { SpeechLanguage } from "@/lib/speech/useAzureSpeech";
+import type { SpeechLang } from "@/lib/speech/useTextToSpeech";
 import type { AssessmentResult } from "@/lib/speech/types";
 
-const TEST_SENTENCES = [
+const ENGLISH_SENTENCES = [
   "We baked the prototype overnight and shipped it in the morning.",
   "The quarterly results exceeded expectations across all regions.",
   "Let me walk you through the architecture of this solution.",
@@ -20,18 +22,44 @@ const TEST_SENTENCES = [
   "Can you elaborate on the specific requirements for this feature?",
 ];
 
-export default function QuickTestPage() {
+const VIETNAMESE_SENTENCES = [
+  "Xin chào, tôi rất vui được gặp bạn hôm nay.",
+  "Tôi muốn đặt một bàn cho hai người tối nay.",
+  "Bạn có thể chỉ đường đến nhà ga không?",
+  "Thời tiết hôm nay đẹp quá, chúng ta đi dạo nhé.",
+  "Tôi đang học tiếng Việt và tôi thấy rất thú vị.",
+  "Cảm ơn bạn rất nhiều, hẹn gặp lại lần sau.",
+];
+
+function TestContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const langParam = searchParams.get("lang");
+  const [lang, setLang] = useState<"en" | "vi">(
+    langParam === "vi" ? "vi" : "en"
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [results, setResults] = useState<AssessmentResult[]>([]);
 
-  const sentence = TEST_SENTENCES[currentIndex];
-  const progress = ((currentIndex + 1) / TEST_SENTENCES.length) * 100;
-  const isLast = currentIndex === TEST_SENTENCES.length - 1;
+  const sentences = lang === "vi" ? VIETNAMESE_SENTENCES : ENGLISH_SENTENCES;
+  const sentence = sentences[currentIndex];
+  const progress = ((currentIndex + 1) / sentences.length) * 100;
+  const isLast = currentIndex === sentences.length - 1;
+
+  const speechLang: SpeechLanguage = lang === "vi" ? "vi-VN" : "en-US";
+  const ttsLang: SpeechLang = lang === "vi" ? "vi-VN" : "en-US";
 
   const { status, result, error, startRecording, stopRecording, reset } =
-    useAzureSpeech({ referenceText: sentence });
+    useAzureSpeech({ referenceText: sentence, language: speechLang });
   const { speak, playing } = useTextToSpeech();
+
+  function handleLangSwitch(newLang: "en" | "vi") {
+    if (newLang === lang) return;
+    setLang(newLang);
+    setCurrentIndex(0);
+    setResults([]);
+    reset();
+  }
 
   function handleNext() {
     if (result) {
@@ -43,6 +71,7 @@ export default function QuickTestPage() {
         "clarity-test-results",
         JSON.stringify(allResults)
       );
+      sessionStorage.setItem("clarity-test-lang", lang);
       router.push("/results");
       return;
     }
@@ -71,13 +100,40 @@ export default function QuickTestPage() {
               Read each sentence aloud
             </h1>
             <p className="mt-2 max-w-xl text-sm text-clarity-slate sm:text-base">
-              We&apos;ll assess your pronunciation across {TEST_SENTENCES.length}{" "}
-              sentences. Speak naturally, as if you&apos;re in a meeting.
+              We&apos;ll assess your pronunciation across {sentences.length}{" "}
+              sentences. Speak naturally.
             </p>
           </div>
-          <p className="text-sm font-medium text-clarity-muted">
-            Sentence {currentIndex + 1} of {TEST_SENTENCES.length}
-          </p>
+          <div className="flex items-center gap-2">
+            {/* Language toggle */}
+            <div className="inline-flex rounded-lg bg-clarity-mist p-0.5 ring-1 ring-clarity-periwinkle">
+              <button
+                type="button"
+                onClick={() => handleLangSwitch("en")}
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+                  lang === "en"
+                    ? "bg-white text-clarity-ink shadow-sm"
+                    : "text-clarity-muted hover:text-clarity-ink"
+                }`}
+              >
+                🇺🇸 English
+              </button>
+              <button
+                type="button"
+                onClick={() => handleLangSwitch("vi")}
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+                  lang === "vi"
+                    ? "bg-white text-clarity-ink shadow-sm"
+                    : "text-clarity-muted hover:text-clarity-ink"
+                }`}
+              >
+                🇻🇳 Tiếng Việt
+              </button>
+            </div>
+            <p className="text-sm font-medium text-clarity-muted">
+              {currentIndex + 1}/{sentences.length}
+            </p>
+          </div>
         </div>
 
         <div
@@ -96,7 +152,7 @@ export default function QuickTestPage() {
         <div className="grid flex-1 gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
           <section className="rounded-2xl border border-clarity-periwinkle bg-white/70 p-5 shadow-sm sm:p-8">
             <h2 className="text-xl font-semibold text-clarity-ink sm:text-2xl">
-              Say this sentence naturally:
+              {lang === "vi" ? "Đọc câu này:" : "Say this sentence naturally:"}
             </h2>
             <blockquote className="mt-6 rounded-xl border border-dashed border-clarity-muted/60 bg-clarity-mist/80 px-5 py-6 text-lg font-medium leading-relaxed text-clarity-navy sm:text-xl">
               &ldquo;{sentence}&rdquo;
@@ -124,7 +180,7 @@ export default function QuickTestPage() {
                 <p className="text-sm font-semibold text-clarity-navy">
                   Word-level feedback
                 </p>
-                <WordFeedback words={result.words} onPlayWord={(w) => speak(w, "slow")} />
+                <WordFeedback words={result.words} onPlayWord={(w) => speak(w, "slow", ttsLang)} />
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   {[
                     { label: "Accuracy", value: result.scores.accuracyScore },
@@ -154,10 +210,16 @@ export default function QuickTestPage() {
                 </p>
                 <p className="text-sm text-clarity-slate">
                   {status === "recording"
-                    ? "Listening... speak the sentence now."
+                    ? lang === "vi"
+                      ? "Đang nghe... hãy đọc câu."
+                      : "Listening... speak the sentence now."
                     : status === "processing"
-                      ? "Analyzing your pronunciation..."
-                      : "Record the sentence to see word-level feedback here."}
+                      ? lang === "vi"
+                        ? "Đang phân tích..."
+                        : "Analyzing your pronunciation..."
+                      : lang === "vi"
+                        ? "Ghi âm câu để xem phản hồi."
+                        : "Record the sentence to see word-level feedback here."}
                 </p>
               </>
             )}
@@ -179,5 +241,13 @@ export default function QuickTestPage() {
         </div>
       </main>
     </Shell>
+  );
+}
+
+export default function QuickTestPage() {
+  return (
+    <Suspense>
+      <TestContent />
+    </Suspense>
   );
 }

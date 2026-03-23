@@ -10,6 +10,8 @@ import { WordFeedback } from "../components/clarity/WordFeedback";
 import { MicPermission } from "../components/clarity/MicPermission";
 import { useAzureSpeech } from "@/lib/speech/useAzureSpeech";
 import { useTextToSpeech } from "@/lib/speech/useTextToSpeech";
+import type { SpeechLanguage } from "@/lib/speech/useAzureSpeech";
+import type { SpeechLang } from "@/lib/speech/useTextToSpeech";
 import type { AssessmentResult, WordScore } from "@/lib/speech/types";
 
 const TARGET_REPS = 5;
@@ -100,12 +102,15 @@ function PracticeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const word = searchParams.get("word") ?? "baked";
+  const langParam = searchParams.get("lang");
+  const lang: SpeechLanguage = langParam === "vi" ? "vi-VN" : "en-US";
+  const ttsLang: SpeechLang = langParam === "vi" ? "vi-VN" : "en-US";
   const [currentRep, setCurrentRep] = useState(1);
   const [repResults, setRepResults] = useState<AssessmentResult[]>([]);
   const [mastered, setMastered] = useState(false);
 
   const { status, result, error, startRecording, stopRecording, reset } =
-    useAzureSpeech({ referenceText: word });
+    useAzureSpeech({ referenceText: word, language: lang });
   const { speak, playing } = useTextToSpeech();
 
   const latestScore = result?.scores.accuracyScore ?? null;
@@ -224,7 +229,7 @@ function PracticeContent() {
                 <div className="mt-6 flex items-center justify-center gap-3">
                   <button
                     type="button"
-                    onClick={() => speak(word, "slow")}
+                    onClick={() => speak(word, "slow", ttsLang)}
                     disabled={playing || isRecordingOrProcessing}
                     className="inline-flex items-center gap-2 rounded-full bg-clarity-purple px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-clarity-purple/90 disabled:opacity-50"
                   >
@@ -233,7 +238,7 @@ function PracticeContent() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => speak(word, "normal")}
+                    onClick={() => speak(word, "normal", ttsLang)}
                     disabled={playing || isRecordingOrProcessing}
                     className="inline-flex items-center gap-2 rounded-full bg-clarity-mist px-4 py-2 text-sm font-semibold text-clarity-purple ring-1 ring-clarity-periwinkle transition hover:bg-clarity-periwinkle disabled:opacity-50"
                   >
@@ -324,7 +329,7 @@ function PracticeContent() {
                     {result.recognizedText || "(no speech detected)"}
                   </p>
                   <div className="mt-3">
-                    <WordFeedback words={result.words} onPlayWord={(w) => speak(w, "slow")} />
+                    <WordFeedback words={result.words} onPlayWord={(w) => speak(w, "slow", ttsLang)} />
                   </div>
                 </>
               ) : (

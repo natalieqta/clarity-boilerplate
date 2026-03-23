@@ -71,11 +71,14 @@ export default function ResultsPage() {
   const [testResults, setTestResults] = useState<AssessmentResult[] | null>(
     null
   );
+  const [lang, setLang] = useState<"en" | "vi">("en");
   const { speak, playing } = useTextToSpeech();
   const hasSaved = useRef(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("clarity-test-results");
+    const storedLang = sessionStorage.getItem("clarity-test-lang");
+    if (storedLang === "vi") setLang("vi");
     if (stored) {
       try {
         setTestResults(JSON.parse(stored));
@@ -135,7 +138,7 @@ export default function ResultsPage() {
           {
             title: "Words to practice",
             detail: weakWords.map((w) => w.word).join(", "),
-            href: `/practice?word=${encodeURIComponent(weakWords[0].word)}`,
+            href: `/practice?word=${encodeURIComponent(weakWords[0].word)}${lang === "vi" ? "&lang=vi" : ""}`,
             accent: "bg-clarity-lime/90 text-clarity-ink",
             weakWordsList: weakWords,
           },
@@ -171,7 +174,7 @@ export default function ResultsPage() {
             detail:
               "Some words were partially dropped. Focus on completing each word fully.",
             href: weakWords.length > 0
-              ? `/practice?word=${encodeURIComponent(weakWords[0].word)}`
+              ? `/practice?word=${encodeURIComponent(weakWords[0].word)}${lang === "vi" ? "&lang=vi" : ""}`
               : "/test",
             accent: "bg-clarity-lime/90 text-clarity-ink",
           },
@@ -244,7 +247,7 @@ export default function ResultsPage() {
             </p>
             {weakWords.length > 0 && (
               <LinkButton
-                href={`/practice?word=${encodeURIComponent(weakWords[0].word)}`}
+                href={`/practice?word=${encodeURIComponent(weakWords[0].word)}${lang === "vi" ? "&lang=vi" : ""}`}
                 className="mt-6 w-full sm:w-auto"
               >
                 Practice top pick
@@ -279,7 +282,7 @@ export default function ResultsPage() {
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                speak(w.word, "slow");
+                                speak(w.word, "slow", lang === "vi" ? "vi-VN" : "en-US");
                               }}
                               disabled={playing}
                               className="rounded-full p-0.5 text-red-500 transition hover:text-red-700 disabled:opacity-50"
@@ -290,7 +293,7 @@ export default function ResultsPage() {
                               </svg>
                             </button>
                             <Link
-                              href={`/practice?word=${encodeURIComponent(w.word)}`}
+                              href={`/practice?word=${encodeURIComponent(w.word)}${lang === "vi" ? "&lang=vi" : ""}`}
                               className="inline-flex items-center gap-1 text-red-800 hover:text-clarity-purple"
                             >
                               {w.word}

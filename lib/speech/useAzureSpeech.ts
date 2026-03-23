@@ -29,11 +29,14 @@ async function fetchToken(): Promise<{ token: string; region: string }> {
   return { token: data.token, region: data.region };
 }
 
+export type SpeechLanguage = "en-US" | "vi-VN";
+
 export function useAzureSpeech(options: {
   referenceText: string;
   enabled?: boolean;
+  language?: SpeechLanguage;
 }) {
-  const { referenceText, enabled = true } = options;
+  const { referenceText, enabled = true, language = "en-US" } = options;
   const [status, setStatus] = useState<AssessmentStatus>("idle");
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [error, setError] = useState<AssessmentError | null>(null);
@@ -124,7 +127,7 @@ export function useAzureSpeech(options: {
         token,
         region
       );
-      speechConfig.speechRecognitionLanguage = "en-US";
+      speechConfig.speechRecognitionLanguage = language;
 
       const pronunciationConfig = new sdk.PronunciationAssessmentConfig(
         referenceText,
@@ -258,7 +261,7 @@ export function useAzureSpeech(options: {
       setStatus("error");
       busyRef.current = false;
     }
-  }, [enabled, referenceText, safeClose]);
+  }, [enabled, referenceText, language, safeClose]);
 
   const stopRecording = useCallback(() => {
     cleanup();

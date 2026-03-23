@@ -13,8 +13,16 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
 
-    if (!email.endsWith('@lumenalta.com')) {
-      setError('Clarity is for Lumenalta teammates only.')
+    const allowedEmails = (process.env.NEXT_PUBLIC_ALLOWED_EMAILS ?? '')
+      .split(',')
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean)
+
+    const isLumenalta = email.endsWith('@lumenalta.com')
+    const isWhitelisted = allowedEmails.includes(email.toLowerCase())
+
+    if (!isLumenalta && !isWhitelisted) {
+      setError('Clarity is for Lumenalta teammates and invited guests only.')
       return
     }
 
@@ -49,7 +57,7 @@ export default function LoginPage() {
         <h1 className="text-2xl font-semibold">Sign in to Clarity</h1>
         <input
           type="email"
-          placeholder="you@lumenalta.com"
+          placeholder="your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required

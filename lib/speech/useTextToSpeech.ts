@@ -5,7 +5,9 @@ import { useState, useRef, useCallback } from "react";
 export type SpeechSpeed = "slow" | "normal";
 
 /** Browser SpeechSynthesis fallback when ElevenLabs is unavailable */
-function browserSpeak(text: string, speed: SpeechSpeed): Promise<void> {
+export type SpeechLang = "en-US" | "vi-VN";
+
+function browserSpeak(text: string, speed: SpeechSpeed, lang: SpeechLang = "en-US"): Promise<void> {
   return new Promise<void>((resolve) => {
     if (typeof window === "undefined" || !window.speechSynthesis) {
       resolve();
@@ -13,7 +15,7 @@ function browserSpeak(text: string, speed: SpeechSpeed): Promise<void> {
     }
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = speed === "slow" ? 0.6 : 1.0;
-    utterance.lang = "en-US";
+    utterance.lang = lang;
     utterance.onend = () => resolve();
     utterance.onerror = () => resolve();
     window.speechSynthesis.speak(utterance);
@@ -26,7 +28,7 @@ export function useTextToSpeech() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const speak = useCallback(
-    (text: string, speed: SpeechSpeed = "slow"): Promise<void> => {
+    (text: string, speed: SpeechSpeed = "slow", lang: SpeechLang = "en-US"): Promise<void> => {
       if (playing) return Promise.resolve();
 
       setTtsError(null);
@@ -35,7 +37,7 @@ export function useTextToSpeech() {
       return fetch("/api/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, speed }),
+        body: JSON.stringify({ text, speed, lang }),
       })
         .then((res) => {
           if (!res.ok) throw new Error(`TTS request failed: ${res.status}`);
@@ -75,7 +77,7 @@ export function useTextToSpeech() {
           // ElevenLabs failed — fall back to browser TTS
           console.error("ElevenLabs TTS failed, using browser fallback:", err);
           setTtsError("Using browser voice (ElevenLabs unavailable)");
-          return browserSpeak(text, speed).finally(() => {
+          return browserSpeak(text, speed, lang).finally(() => {
             setPlaying(false);
           });
         });
