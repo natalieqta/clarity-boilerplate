@@ -34,6 +34,13 @@ export function Shell({ children, variant = "default" }: ShellProps) {
             >
               Message clarity
             </Link>
+            <span className="hidden h-4 w-px bg-clarity-periwinkle sm:block" />
+            <Link
+              href="/dashboard"
+              className="rounded-lg px-2 py-1.5 transition-colors hover:bg-clarity-mist hover:text-clarity-ink sm:px-3"
+            >
+              Dashboard
+            </Link>
           </nav>
         </div>
       </header>
