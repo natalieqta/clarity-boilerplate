@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -28,48 +30,46 @@ export default function LoginPage() {
 
     setLoading(true)
     const supabase = createClient()
-    const { error: authError } = await supabase.auth.signInWithOtp({
+    const { error: authError } = await supabase.auth.signInWithPassword({
       email,
-      options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin}/auth/callback`,
-      },
+      password,
     })
     setLoading(false)
 
     if (authError) {
       setError(authError.message)
     } else {
-      setSent(true)
+      router.push('/dashboard')
     }
   }
 
-  if (sent) {
-    return (
-      <main className="flex min-h-screen items-center justify-center">
-        <p className="text-lg">Check your inbox — we sent you a link.</p>
-      </main>
-    )
-  }
-
   return (
-    <main className="flex min-h-screen items-center justify-center">
+    <main className="flex min-h-screen items-center justify-center bg-clarity-bg">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-80">
-        <h1 className="text-2xl font-semibold">Sign in to Clarity</h1>
+        <h1 className="text-2xl font-bold text-clarity-ink">Sign in to Clarity</h1>
         <input
           type="email"
           placeholder="your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="border rounded px-3 py-2"
+          className="border border-clarity-periwinkle rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-clarity-purple"
+        />
+        <input
+          type="password"
+          placeholder="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="border border-clarity-periwinkle rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-clarity-purple"
         />
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <button
           type="submit"
           disabled={loading}
-          className="bg-black text-white rounded px-4 py-2 disabled:opacity-50"
+          className="bg-clarity-purple text-white rounded-xl px-4 py-2.5 text-sm font-semibold disabled:opacity-50 hover:brightness-95 transition"
         >
-          {loading ? 'Sending…' : 'Send magic link'}
+          {loading ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
     </main>
