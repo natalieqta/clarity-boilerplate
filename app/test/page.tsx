@@ -54,6 +54,8 @@ export default function QuickTestPage() {
     if (currentIndex > 0) {
       setCurrentIndex((i) => i - 1);
       reset();
+    } else {
+      router.push("/");
     }
   }
 
@@ -163,7 +165,7 @@ export default function QuickTestPage() {
         </div>
 
         <div className="mt-8 flex flex-col-reverse gap-3 border-t border-clarity-periwinkle pt-6 sm:flex-row sm:justify-between">
-          <GhostButton type="button" onClick={handleBack} disabled={currentIndex === 0}>
+          <GhostButton type="button" onClick={handleBack}>
             Back
           </GhostButton>
           <PrimaryButton
