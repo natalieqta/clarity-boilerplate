@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Shell } from "./components/clarity/Shell";
-import { LemonSliceAvatar } from "./components/clarity/LemonSliceAvatar";
 
 export default function Home() {
   return (
@@ -21,31 +20,6 @@ export default function Home() {
 
         {/* Two module cards */}
         <section className="grid gap-6 sm:grid-cols-2 animate-fade-in-up-delay-1">
-          {/* HOW card */}
-          <Link
-            href="/test"
-            className="glass-card group flex flex-col justify-between p-6 transition hover:border-clarity-purple/40 hover:shadow-md sm:p-8"
-          >
-            <div>
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-clarity-lime/30 text-xl">
-                🎙
-              </span>
-              <h2 className="mt-4 text-xl font-bold text-clarity-ink">
-                HOW you say it
-              </h2>
-              <p className="mt-2 text-sm leading-relaxed text-clarity-slate">
-                Perfect your pronunciation. Read sentences, get word-level
-                scores, and drill specific sounds. For non-native speakers
-                refining English and native speakers who need to enunciate.
-              </p>
-            </div>
-            <div className="mt-6">
-              <span className="inline-flex items-center gap-1 text-sm font-semibold text-clarity-purple group-hover:underline">
-                Start pronunciation test &rarr;
-              </span>
-            </div>
-          </Link>
-
           {/* WHAT card */}
           <Link
             href="/what"
@@ -67,6 +41,31 @@ export default function Home() {
             <div className="mt-6">
               <span className="inline-flex items-center gap-1 text-sm font-semibold text-clarity-purple group-hover:underline">
                 Try a scenario &rarr;
+              </span>
+            </div>
+          </Link>
+
+          {/* HOW card */}
+          <Link
+            href="/test"
+            className="glass-card group flex flex-col justify-between p-6 transition hover:border-clarity-purple/40 hover:shadow-md sm:p-8"
+          >
+            <div>
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-clarity-lime/30 text-xl">
+                🎙
+              </span>
+              <h2 className="mt-4 text-xl font-bold text-clarity-ink">
+                HOW you say it
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-clarity-slate">
+                Perfect your pronunciation. Read sentences, get word-level
+                scores, and drill specific sounds. For non-native speakers
+                refining English and native speakers who need to enunciate.
+              </p>
+            </div>
+            <div className="mt-6">
+              <span className="inline-flex items-center gap-1 text-sm font-semibold text-clarity-purple group-hover:underline">
+                Start pronunciation test &rarr;
               </span>
             </div>
           </Link>
@@ -112,9 +111,6 @@ export default function Home() {
           </div>
         </section>
       </main>
-
-      {/* Lemon Slice AI Avatar */}
-      <LemonSliceAvatar />
     </Shell>
   );
 }

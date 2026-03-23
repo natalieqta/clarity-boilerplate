@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Shell } from "../components/clarity/Shell";
 import { LinkButton } from "../components/clarity/Buttons";
 import { useTextToSpeech } from "@/lib/speech/useTextToSpeech";
+import { createClient } from "@/lib/supabase/client";
+import { saveSession } from "@/lib/supabase/sessions";
 import type { AssessmentResult, WordScore } from "@/lib/speech/types";
 
 function computeOverallScore(results: AssessmentResult[]): number {
@@ -33,10 +35,24 @@ function computeAverages(results: AssessmentResult[]) {
   };
 }
 
+const STOP_WORDS = new Set([
+  "the", "a", "an", "we", "i", "to", "it", "is", "in", "of",
+  "or", "and", "be", "do", "he", "she", "me", "my", "you",
+  "for", "so", "no", "up", "if", "on", "at", "by", "as",
+  "can", "but", "not", "all", "has", "had", "was", "are",
+  "his", "her", "its", "our", "let", "this", "that",
+]);
+
 function findWeakWords(results: AssessmentResult[]): WordScore[] {
   const allWords = results.flatMap((r) => r.words);
   return allWords
-    .filter((w) => w.accuracyScore < 75 && w.errorType !== "None")
+    .filter(
+      (w) =>
+        w.accuracyScore < 75 &&
+        w.errorType !== "None" &&
+        w.word.length >= 3 &&
+        !STOP_WORDS.has(w.word.toLowerCase())
+    )
     .sort((a, b) => a.accuracyScore - b.accuracyScore)
     .slice(0, 6);
 }
@@ -56,6 +72,7 @@ export default function ResultsPage() {
     null
   );
   const { speak, playing } = useTextToSpeech();
+  const hasSaved = useRef(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("clarity-test-results");
@@ -67,6 +84,21 @@ export default function ResultsPage() {
       }
     }
   }, []);
+
+  // Save session to Supabase if user is logged in
+  useEffect(() => {
+    if (!testResults || hasSaved.current) return;
+    hasSaved.current = true;
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user?.email) {
+        const overall = Math.round(
+          testResults.reduce((a, r) => a + r.scores.overallScore, 0) / testResults.length
+        );
+        saveSession(user.email, "how", testResults as unknown as Record<string, unknown>, overall);
+      }
+    });
+  }, [testResults]);
 
   // Fallback static content when no test data
   if (!testResults) {
@@ -239,32 +271,32 @@ export default function ResultsPage() {
                     {"weakWordsList" in s && s.weakWordsList ? (
                       <div className="mt-2 flex flex-wrap gap-2">
                         {(s.weakWordsList as WordScore[]).map((w, i) => (
-                          <span
+                          <div
                             key={`${w.word}-${i}`}
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-2.5 py-1 text-sm font-medium text-red-800 ring-1 ring-red-200"
+                            className="inline-flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-800 ring-1 ring-red-200 transition hover:bg-red-100 hover:ring-red-300"
                           >
-                            {w.word}
                             <button
                               type="button"
-                              onClick={() => speak(w.word, "slow")}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                speak(w.word, "slow");
+                              }}
                               disabled={playing}
                               className="rounded-full p-0.5 text-red-500 transition hover:text-red-700 disabled:opacity-50"
                               title={`Hear "${w.word}"`}
                             >
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4">
                                 <path d="M7.557 2.066A.75.75 0 0 1 8 2.75v10.5a.75.75 0 0 1-1.248.56L3.59 11H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.59l3.162-2.81a.75.75 0 0 1 .805-.124ZM12.95 3.05a.75.75 0 1 0-1.06 1.06 5.5 5.5 0 0 1 0 7.78.75.75 0 1 0 1.06 1.06 7 7 0 0 0 0-9.9ZM10.828 5.172a.75.75 0 1 0-1.06 1.06 2.5 2.5 0 0 1 0 3.536.75.75 0 1 0 1.06 1.06 4 4 0 0 0 0-5.656Z" />
                               </svg>
                             </button>
                             <Link
                               href={`/practice?word=${encodeURIComponent(w.word)}`}
-                              className="rounded-full p-0.5 text-red-500 transition hover:text-red-700"
-                              title={`Practice "${w.word}"`}
+                              className="inline-flex items-center gap-1 text-red-800 hover:text-clarity-purple"
                             >
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5">
-                                <path fillRule="evenodd" d="M2 8a.75.75 0 0 1 .75-.75h8.69L8.22 4.03a.75.75 0 0 1 1.06-1.06l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06-1.06l3.22-3.22H2.75A.75.75 0 0 1 2 8Z" clipRule="evenodd" />
-                              </svg>
+                              {w.word}
+                              <span className="text-xs font-medium text-clarity-purple">Practice &rarr;</span>
                             </Link>
-                          </span>
+                          </div>
                         ))}
                       </div>
                     ) : (

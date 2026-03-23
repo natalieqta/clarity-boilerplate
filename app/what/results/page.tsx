@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Shell } from "../../components/clarity/Shell";
@@ -9,11 +9,15 @@ import { ScoreCircle } from "../../components/clarity/ScoreCircle";
 import { SubScoreGrid } from "../../components/clarity/SubScoreGrid";
 import { StructureChecklist } from "../../components/clarity/FrameworkChecklist";
 import { FillerHighlight } from "../../components/clarity/FillerHighlight";
+import { createClient } from "@/lib/supabase/client";
+import { saveSession } from "@/lib/supabase/sessions";
 import type { WhatSessionData } from "@/lib/types/what";
 
 export default function WhatResultsPage() {
   const router = useRouter();
   const [session, setSession] = useState<WhatSessionData | null>(null);
+
+  const hasSaved = useRef(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("clarity-what-results");
@@ -25,6 +29,23 @@ export default function WhatResultsPage() {
       }
     }
   }, []);
+
+  // Save session to Supabase if user is logged in
+  useEffect(() => {
+    if (!session || hasSaved.current) return;
+    hasSaved.current = true;
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user?.email) {
+        saveSession(
+          user.email,
+          "what",
+          session as unknown as Record<string, unknown>,
+          session.analysis.overall_score
+        );
+      }
+    });
+  }, [session]);
 
   if (!session) {
     return (
